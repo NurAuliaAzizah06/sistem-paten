@@ -1,18 +1,37 @@
 <?php
-// Koneksi database Docker kamu
-$conn = new mysqli('db', 'root', 'bismillah123', 'db_paten');
-if ($conn->connect_error) { die("Koneksi gagal: " . $conn->connect_error); }
+// 1. Keamanan Area Admin
+session_start();
+if (!isset($_SESSION['admin'])) {
+    header("Location: login.php");
+    exit();
+}
 
-// 1. Ambil data warga dari tabel warga untuk dimasukkan ke pilihan dropdown (Select Option)
+// 2. Koneksi database Docker
+$conn = new mysqli('db', 'root', 'bismillah123', 'db_paten');
+if ($conn->connect_error) { 
+    die("Koneksi gagal: " . $conn->connect_error); 
+}
+
+// Ambil data warga dari tabel warga untuk dimasukkan ke pilihan dropdown (Select Option)
 $warga_query = $conn->query("SELECT nik, nama FROM warga ORDER BY nama ASC");
 
-// 2. Proses ketika tombol "Simpan Pengajuan" diklik
+// 3. Proses ketika tombol "Simpan Pengajuan" diklik
 if (isset($_POST['simpan'])) {
     $nik = $conn->real_escape_string($_POST['nik']);
-    $syarat_kk = $_POST['syarat_kk'];
-    $syarat_akta = $_POST['syarat_akta'];
-    $syarat_surat_pengantar = $_POST['syarat_surat_pengantar'];
+    $syarat_kk = $conn->real_escape_string($_POST['syarat_kk']);
+    $syarat_akta = $conn->real_escape_string($_POST['syarat_akta']);
+    $syarat_surat_pengantar = $conn->real_escape_string($_POST['syarat_surat_pengantar']);
     
+    // Validasi pencegahan data ganda (Satu NIK hanya boleh punya 1 status pengajuan KTP)
+    $cek_ganda = $conn->query("SELECT nik FROM pemberkasan_ktp WHERE nik = '$nik'");
+    if ($cek_ganda->num_rows > 0) {
+        echo "<script>
+                alert('Gagal! Warga dengan NIK tersebut sudah memiliki riwayat pengajuan pemberkasan.');
+                window.location.href='pemberkasan.php';
+              </script>";
+        exit();
+    }
+
     // Logika penentuan status otomatis agar sistem terlihat cerdas di hadapan penguji:
     if ($syarat_kk == 'Lengkap' && $syarat_akta == 'Lengkap' && $syarat_surat_pengantar == 'Lengkap') {
         $status_berkas = 'Lengkap (Sesuai Syarat)';
@@ -31,8 +50,9 @@ if (isset($_POST['simpan'])) {
                 alert('Data pemberkasan berhasil ditambahkan!');
                 window.location.href='pemberkasan.php';
               </script>";
+        exit();
     } else {
-        echo "<div class='alert alert-danger'>Gagal menyimpan data: " . $conn->error . "</div>";
+        echo "<div class='alert alert-danger container mt-3'>Gagal menyimpan data: " . $conn->error . "</div>";
     }
 }
 ?>
@@ -41,6 +61,7 @@ if (isset($_POST['simpan'])) {
 <html lang="id">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tambah Pengajuan Pemberkasan - PATEN</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
@@ -64,9 +85,9 @@ if (isset($_POST['simpan'])) {
                     <select name="nik" class="form-select" required>
                         <option value="">-- Pilih NIK / Nama Warga --</option>
                         <?php 
-                        if ($warga_query->num_rows > 0) {
+                        if ($warga_query && $warga_query->num_rows > 0) {
                             while($warga = $warga_query->fetch_assoc()) {
-                                echo "<option value='".$warga['nik']."'>".$warga['nik']." - ".$warga['nama']."</option>";
+                                echo "<option value='".htmlspecialchars($warga['nik'])."'>".htmlspecialchars($warga['nik'])." - ".htmlspecialchars($warga['nama'])."</option>";
                             }
                         } else {
                             echo "<option value=''>Belum ada data warga di database</option>";
