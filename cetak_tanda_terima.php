@@ -1,22 +1,43 @@
 <?php
-// Koneksi database Docker kamu
-$conn = new mysqli('db', 'root', 'bismillah123', 'db_paten');
-if ($conn->connect_error) { die("Koneksi gagal: " . $conn->connect_error); }
+// 1. Proteksi Session Keamanan Admin
+session_start();
+if (!isset($_SESSION['admin'])) {
+    header("Location: login.php");
+    exit();
+}
 
-// Ambil ID Pemberkasan dari URL
+// 2. Koneksi database Docker kamu
+$conn = new mysqli('db', 'root', 'bismillah123', 'db_paten');
+if ($conn->connect_error) { 
+    die("Koneksi gagal: " . $conn->connect_error); 
+}
+
+// 3. Ambil ID Pemberkasan dari URL
 if (isset($_GET['id'])) {
     $id = intval($_GET['id']);
     
-    // Perbaikan: p.id_pemberkasan diganti menjadi p.id sesuai struktur tabel asli
+    // Query disesuaikan dengan struktur p.id
     $query = $conn->query("SELECT p.*, w.nama FROM pemberkasan_ktp p 
                            JOIN warga w ON p.nik = w.nik 
                            WHERE p.id = $id");
     $data = $query->fetch_assoc();
     
-    if (!$data) { die("Data tidak ditemukan!"); }
+    if (!$data) { 
+        die("<div style='padding:20px; text-align:center; font-family:sans-serif;'><h3>Data tanda terima tidak ditemukan!</h3></div>"); 
+    }
 } else {
     header("Location: pemberkasan.php");
     exit;
+}
+
+// 4. Fungsi khusus konversi tanggal ke format resmi Bahasa Indonesia
+function tgl_indo($waktu) {
+    $bulan = array (
+        1 => 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    );
+    $split = explode('-', date('Y-m-d', strtotime($waktu)));
+    return $split[2] . ' ' . $bulan[(int)$split[1]] . ' ' . $split[0];
 }
 ?>
 
@@ -24,18 +45,19 @@ if (isset($_GET['id'])) {
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Tanda Terima Berkas - <?php echo $data['nama']; ?></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tanda Terima Berkas - <?php echo htmlspecialchars($data['nama']); ?></title>
     <style>
         body { font-family: 'Times New Roman', Times, serif; padding: 30px; line-height: 1.6; background-color: white; color: black; }
         
-        /* LAYOUT BARU: KOP Surat dengan Logo di Kiri */
+        /* LAYOUT KOP Surat dengan Logo di Kiri */
         .kop-container { display: flex; align-items: center; border-bottom: 3px double black; padding-bottom: 15px; margin-bottom: 30px; }
         .kop-logo { width: 80px; height: auto; padding-right: 20px; }
         .kop-teks { flex-grow: 1; text-align: center; padding-right: 60px; }
         
-        .kop-teks h2 { margin: 0; text-transform: uppercase; font-size: 20px; letter-spacing: 0.5px; line-height: 1.2; }
-        .kop-teks h3 { margin: 5px 0; font-size: 22px; font-weight: bold; line-height: 1.2; }
-        .kop-teks p { margin: 0; font-size: 13px; font-style: italic; }
+        .kop-teks h2 { margin: 0; text-transform: uppercase; font-size: 18px; letter-spacing: 0.5px; line-height: 1.2; }
+        .kop-teks h3 { margin: 5px 0; font-size: 20px; font-weight: bold; line-height: 1.2; }
+        .kop-teks p { margin: 0; font-size: 12px; font-style: italic; }
         
         .judul-surat { text-align: center; font-weight: bold; text-decoration: underline; font-size: 18px; margin-bottom: 25px; text-transform: uppercase; letter-spacing: 0.5px; }
         
@@ -69,30 +91,30 @@ if (isset($_GET['id'])) {
         </div>
     </div>
 
-    <div class="judul-surat">SURAT TANDA TERIMA BERKAS PERMOHONAN KTP</div>
+    <div class="judul-surat">SURAT TANDA TERIMA BERKAS PERMOHONAN</div>
 
     <p>Telah diterima berkas persyaratan pengajuan Kartu Tanda Penduduk (KTP) melalui Sistem PATEN (Pelayanan Administrasi Terpadu Kecamatan) dari warga dengan identitas berikut:</p>
 
     <table class="tabel-data">
         <tr>
-            <td width="30%">Nomor Registrasi</td>
+            <td width="35%">Nomor Registrasi</td>
             <td width="3%">:</td>
-            <td><strong>REG-PATEN/KTP/00<?php echo $data['id']; ?></strong></td>
+            <td><strong>REG-PATEN/KTP/00<?php echo intval($data['id']); ?></strong></td>
         </tr>
         <tr>
             <td>Nomor Induk Kependudukan (NIK)</td>
             <td>:</td>
-            <td><?php echo $data['nik']; ?></td>
+            <td><?php echo htmlspecialchars($data['nik']); ?></td>
         </tr>
         <tr>
             <td>Nama Pemohon</td>
             <td>:</td>
-            <td><strong><?php echo uppercase($data['nama']); ?></strong></td>
+            <td><strong><?php echo strtoupper(htmlspecialchars($data['nama'])); ?></strong></td>
         </tr>
         <tr>
             <td>Tanggal Penyerahan</td>
             <td>:</td>
-            <td><?php echo date('d F Y', strtotime($data['waktu_verifikasi'])); ?></td>
+            <td><?php echo tgl_indo($data['waktu_verifikasi']); ?></td>
         </tr>
     </table>
 
@@ -110,18 +132,18 @@ if (isset($_GET['id'])) {
             <tr>
                 <td style="text-align: center;">1</td>
                 <td>Fotokopi / Scan Kartu Keluarga (KK)</td>
-                <td style="text-align: center; font-weight: bold;"><?php echo (!empty($data['file_kk'])) ? 'LENGKAP' : 'BELUM LENGKAP'; ?></td>
+                <td style="text-align: center; font-weight: bold;"><?php echo ($data['file_kk'] == 'Lengkap') ? 'LENGKAP' : 'BELUM LENGKAP'; ?></td>
             </tr>
             <tr>
                 <td style="text-align: center;">2</td>
                 <td>Surat Pengantar dari RT/RW Setempat</td>
-                <td style="text-align: center; font-weight: bold;"><?php echo (!empty($data['file_surat_pengantar'])) ? 'LENGKAP' : 'BELUM LENGKAP'; ?></td>
+                <td style="text-align: center; font-weight: bold;"><?php echo ($data['file_surat_pengantar'] == 'Lengkap') ? 'LENGKAP' : 'BELUM LENGKAP'; ?></td>
             </tr>
         </tbody>
     </table>
 
     <div class="status-box">
-        KESIMPULAN STATUS BERKAS SAAT INI: <span style="text-decoration: underline;"><?php echo uppercase($data['status_berkas']); ?></span>
+        KESIMPULAN STATUS BERKAS SAAT INI: <span style="text-decoration: underline;"><?php echo strtoupper(htmlspecialchars($data['status_berkas'])); ?></span>
     </div>
 
     <div class="ttd-area">
@@ -131,7 +153,7 @@ if (isset($_GET['id'])) {
             <p>( ____________________ )</p>
         </div>
         <div class="ttd-box">
-            <p>Birayang, <?php echo date('d F Y'); ?></p>
+            <p>Birayang, <?php echo tgl_indo(date('Y-m-d')); ?></p>
             <p>Petugas Operator PATEN</p>
             <div class="ttd-space"></div>
             <p><strong>( Petugas Kecamatan )</strong></p>
@@ -142,8 +164,4 @@ if (isset($_GET['id'])) {
 </html>
 <?php 
 $conn->close(); 
-
-function uppercase($str) {
-    return strtoupper($str);
-}
 ?>

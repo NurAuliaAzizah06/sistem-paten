@@ -1,5 +1,12 @@
 <?php
-// Koneksi ke database Docker kamu
+// 1. Tambahkan Proteksi Session untuk Keamanan Area Admin
+session_start();
+if (!isset($_SESSION['admin'])) {
+    header("Location: login.php");
+    exit();
+}
+
+// 2. Koneksi ke database Docker
 $conn = new mysqli('db', 'root', 'bismillah123', 'db_paten');
 if ($conn->connect_error) { 
     die("Koneksi database gagal: " . $conn->connect_error); 
@@ -19,7 +26,7 @@ if (!empty($search)) {
     $sql .= " WHERE p.nik LIKE '%$search%' OR w.nama LIKE '%$search%'";
 }
 
-// PERBAIKAN: Menggunakan nama kolom yang benar sesuai database (waktu_verifikasi)
+// Menggunakan nama kolom waktu_verifikasi sesuai struktur asli database pemberkasan_ktp
 $sql .= " ORDER BY p.waktu_verifikasi DESC";
 $result = $conn->query($sql);
 ?>
@@ -57,7 +64,7 @@ $result = $conn->query($sql);
             <h5 class="mb-0"><i class="bi bi-file-earmark-text-fill me-2"></i> Modul Pemberkasan KTP Kecamatan Birayang</h5>
             <div class="no-print">
                 <button onclick="window.print()" class="btn btn-warning btn-sm me-2 fw-bold text-dark">
-                    <i class="bi bi-printer-fill Holiday me-1"></i> Cetak Laporan
+                    <i class="bi bi-printer-fill me-1"></i> Cetak Laporan
                 </button>
                 <a href="tambah_pemberkasan.php" class="btn btn-primary btn-sm"><i class="bi bi-plus-circle"></i> Buat Pengajuan Baru</a>
             </div>
@@ -101,14 +108,14 @@ $result = $conn->query($sql);
                                 echo "<td><strong>".htmlspecialchars($row['nik'])."</strong></td>";
                                 echo "<td>".htmlspecialchars($row['nama'])."</td>";
                                 
-                                // PERBAIKAN: Deteksi berkas KK berdasarkan file fisik di database
+                                // Deteksi berkas KK berdasarkan file fisik di database
                                 if (!empty($row['file_kk'])) {
                                     echo "<td class='text-center'><span class='badge bg-success'><i class='bi bi-file-earmark-check'></i> Tersedia</span></td>";
                                 } else {
                                     echo "<td class='text-center'><span class='badge bg-danger'>Kosong</span></td>";
                                 }
                                 
-                                // PERBAIKAN: Deteksi berkas Surat Pengantar berdasarkan file fisik di database
+                                // Deteksi berkas Surat Pengantar berdasarkan file fisik di database
                                 if (!empty($row['file_surat_pengantar'])) {
                                     echo "<td class='text-center'><span class='badge bg-success'><i class='bi bi-file-earmark-check'></i> Tersedia</span></td>";
                                 } else {
@@ -119,9 +126,9 @@ $result = $conn->query($sql);
                                 if ($row['status_berkas'] == 'Lengkap (Sesuai Syarat)') $status_class = 'bg-success';
                                 if ($row['status_berkas'] == 'Belum Lengkap') $status_class = 'bg-danger';
                                 
-                                echo "<td class='text-center'><span class='badge $status_class' style='font-size: 13px;'>".$row['status_berkas']."</span></td>";
+                                echo "<td class='text-center'><span class='badge $status_class' style='font-size: 13px;'>".htmlspecialchars($row['status_berkas'])."</span></td>";
                                 
-                                // PERBAIKAN: Mengubah $row['id_pemberkasan'] menjadi $row['id'] agar tombol berfungsi
+                                // Menggunakan $row['id'] yang mengarah ke primary key tabel pemberkasan_ktp
                                 echo "<td class='text-center no-print'>
                                         <div class='btn-group' role='group'>
                                             <a href='cetak_tanda_terima.php?id=".$row['id']."' target='_blank' class='btn btn-info btn-sm text-white' title='Cetak Tanda Terima'><i class='bi bi-printer-fill'></i></a>
@@ -139,7 +146,6 @@ $result = $conn->query($sql);
                                 echo "</tr>";
                             }
                         } else {
-                            // Colspan disesuaikan menjadi 7 kolom
                             echo "<tr><td colspan='7' class='text-center text-muted py-4'>Belum ada riwayat berkas pengajuan KTP yang diproses.</td></tr>";
                         }
                         ?>

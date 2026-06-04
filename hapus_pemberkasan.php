@@ -1,13 +1,22 @@
 <?php
-// Koneksi database Docker kamu
-$conn = new mysqli('db', 'root', 'bismillah123', 'db_paten');
-if ($conn->connect_error) { die("Koneksi gagal: " . $conn->connect_error); }
+// 1. Proteksi Session Keamanan Area Admin
+session_start();
+if (!isset($_SESSION['admin'])) {
+    header("Location: login.php");
+    exit();
+}
 
-// Ambil ID dari URL tombol hapus
+// 2. Koneksi database Docker
+$conn = new mysqli('db', 'root', 'bismillah123', 'db_paten');
+if ($conn->connect_error) { 
+    die("Koneksi gagal: " . $conn->connect_error); 
+}
+
+// 3. Ambil ID dari URL tombol hapus
 if (isset($_GET['id'])) {
     $id = intval($_GET['id']);
     
-    // Perbaikan: Kolom utama di database adalah 'id', bukan 'id_pemberkasan'
+    // Perbaikan mandiri kamu sudah sangat tepat: menggunakan kolom 'id'
     $sql_delete = "DELETE FROM pemberkasan_ktp WHERE id = $id";
     
     if ($conn->query($sql_delete) === TRUE) {
@@ -23,6 +32,7 @@ if (isset($_GET['id'])) {
     }
 } else {
     header("Location: pemberkasan.php");
+    exit(); // Ditambahkan exit agar eksekusi script langsung berhenti setelah redirect
 }
 
 $conn->close();

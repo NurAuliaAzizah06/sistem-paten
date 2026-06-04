@@ -1,41 +1,52 @@
 <?php
-// Koneksi database Docker kamu
-$conn = new mysqli('db', 'root', 'bismillah123', 'db_paten');
-if ($conn->connect_error) { die("Koneksi gagal: " . $conn->connect_error); }
+// 1. Proteksi Session Keamanan Area Admin
+session_start();
+if (!isset($_SESSION['admin'])) {
+    header("Location: login.php");
+    exit();
+}
 
-// 1. Ambil data lama yang mau diedit berdasarkan ID di URL
+// 2. Koneksi database Docker kamu
+$conn = new mysqli('db', 'root', 'bismillah123', 'db_paten');
+if ($conn->connect_error) { 
+    die("Koneksi gagal: " . $conn->connect_error); 
+}
+
+// 3. Ambil data lama yang mau diedit berdasarkan ID di URL
 if (isset($_GET['id'])) {
     $id = intval($_GET['id']);
-    // PERUBAHAN: p.id_pemberkasan diubah menjadi p.id sesuai struktur tabel baru
+    
+    // Query disesuaikan menggunakan p.id sesuai struktur tabel baru
     $query = $conn->query("SELECT p.*, w.nama FROM pemberkasan_ktp p 
                            JOIN warga w ON p.nik = w.nik 
                            WHERE p.id = $id");
     $data = $query->fetch_assoc();
     
     if (!$data) {
-        die("Data tidak ditemukan!");
+        die("<div class='container mt-5'><div class='alert alert-danger'>Data tidak ditemukan!</div></div>");
     }
 } else {
     header("Location: pemberkasan.php");
     exit;
 }
 
-// 2. Proses update data saat tombol "Simpan Perubahan" diklik
+// 4. Proses update data saat tombol "Simpan Perubahan" diklik
 if (isset($_POST['update'])) {
-    // PERUBAHAN: Menyesuaikan nama kolom input dengan kolom tabel fisik (file_kk & file_surat_pengantar)
-    $file_kk = $_POST['file_kk'];
-    $file_surat_pengantar = $_POST['file_surat_pengantar'];
+    // Pengamanan data input dari form
+    $file_kk = $conn->real_escape_string($_POST['file_kk']);
+    $file_surat_pengantar = $conn->real_escape_string($_POST['file_surat_pengantar']);
     
-    // Logika penentuan status otomatis disesuaikan dengan 2 berkas utama
+    // Logika penentuan status kelayakan berkas secara otomatis
     if ($file_kk == 'Lengkap' && $file_surat_pengantar == 'Lengkap') {
         $status_berkas = 'Lengkap (Sesuai Syarat)';
     } elseif ($file_kk == 'Belum Lengkap' && $file_surat_pengantar == 'Belum Lengkap') {
         $status_berkas = 'Belum Lengkap';
     } else {
+        // Jika salah satu sudah lengkap namun yang lain belum
         $status_berkas = 'Menunggu Verifikasi';
     }
 
-    // PERUBAHAN: Query UPDATE disesuaikan ke kolom asli database dan WHERE id = $id
+    // Query UPDATE disesuaikan ke kolom asli database berdasarkan id
     $sql_update = "UPDATE pemberkasan_ktp SET 
                    file_kk = '$file_kk', 
                    file_surat_pengantar = '$file_surat_pengantar', 
@@ -48,7 +59,7 @@ if (isset($_POST['update'])) {
                 window.location.href='pemberkasan.php';
               </script>";
     } else {
-        echo "<div class='alert alert-danger'>Gagal memperbarui data: " . $conn->error . "</div>";
+        echo "<div class='container mt-3'><div class='alert alert-danger'>Gagal memperbarui data: " . $conn->error . "</div></div>";
     }
 }
 ?>
@@ -57,7 +68,8 @@ if (isset($_POST['update'])) {
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Edit Status Pemberkasan - PATEN</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Status Pemberkasan - PATEN Birayang</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 </head>
@@ -77,7 +89,7 @@ if (isset($_POST['update'])) {
                 
                 <div class="mb-3">
                     <label class="form-label fw-bold">Nama Warga Pemohon</label>
-                    <input type="text" class="form-control bg-white" value="<?php echo $data['nik'] . ' - ' . $data['nama']; ?>" disabled>
+                    <input type="text" class="form-control bg-white" value="<?php echo htmlspecialchars($data['nik'] . ' - ' . $data['nama']); ?>" disabled>
                 </div>
 
                 <hr>
@@ -107,6 +119,7 @@ if (isset($_POST['update'])) {
         </div>
     </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
 <?php $conn->close(); ?>
