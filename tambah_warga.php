@@ -20,17 +20,42 @@ if (!isset($_SESSION['admin'])) {
                 <h5 class="mb-0">Tambah Data Warga Birayang</h5>
             </div>
             <div class="card-body">
-                <form action="simpan_warga.php" method="POST">
+                <form action="simpan_warga.php" method="POST" enctype="multipart/form-data">
                     <div class="mb-3">
                         <label class="form-label">NIK</label>
                         <input type="text" name="nik" class="form-control" placeholder="Masukkan 16 digit NIK" required>
                     </div>
+                    
                     <div class="mb-3">
                         <label class="form-label">Nama Lengkap</label>
                         <input type="text" name="nama" class="form-control" placeholder="Nama sesuai KTP" required>
                     </div>
-                    <button type="submit" class="btn btn-success w-100">Simpan Data</button>
-                    <a href="index.php" class="btn btn-link w-100 mt-2 text-decoration-none text-muted">Kembali ke Beranda</a>
+
+                    <div class="mb-3">
+                        <label class="form-label">Surat Pengantar dari RT/RW</label>
+                        <input type="file" name="file_surat_pengantar" class="form-control" accept="image/*,.pdf" required>
+                        <div class="form-text">Format yang diizinkan: JPG, PNG, atau PDF.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Kartu Keluarga (Fotokopi/Scan)</label>
+                        <input type="file" name="file_kk" class="form-control" accept="image/*,.pdf" required>
+                        <div class="form-text">Format yang diizinkan: JPG, PNG, atau PDF.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Status Dokumen KTP</label>
+                        <select name="status_berkas" class="form-control" required>
+                            <option value="Belum Lengkap">Belum Lengkap</option>
+                            <option value="Menunggu Verifikasi">Menunggu Verifikasi</option>
+                            <option value="Lengkap (Sesuai Syarat)">Lengkap (Sesuai Syarat)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-success w-100 mb-2">Simpan Data</button>
+                        <a href="lihat_warga.php" class="btn btn-outline-secondary w-100">Kembali</a>
+                    </div>
                 </form>
             </div>
         </div>

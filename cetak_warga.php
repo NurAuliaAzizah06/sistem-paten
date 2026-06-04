@@ -27,7 +27,7 @@
             </thead>
             <tbody>
                 <?php
-                $conn = new mysqli('db', 'root', 'password_paten', 'db_paten');
+                $conn = new mysqli('db', 'root', 'bismillah123', 'db_paten');
                 $no = 1;
                 $query = "SELECT * FROM warga ORDER BY tgl_input DESC";
                 $result = $conn->query($query);

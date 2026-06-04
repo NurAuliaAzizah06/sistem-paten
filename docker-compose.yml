@@ -13,8 +13,20 @@ services:
   db:
     image: mysql:8.0
     environment:
-      MYSQL_ROOT_PASSWORD: password_paten
+      MYSQL_ROOT_PASSWORD: bismillah123
       MYSQL_DATABASE: db_paten
        TZ=Asia/Makassar
     ports:
       - "3306:3306"
+  
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: paten_phpmyadmin
+    environment:
+      PMA_HOST: db
+      PMA_USER: root
+      PMA_PASSWORD: bismillah123
+    ports:
+      - "8081:80"
+    depends_on:
+      - db 

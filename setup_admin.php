@@ -1,12 +1,11 @@
 <?php
-$conn = new mysqli('db', 'root', 'password_paten', 'db_paten');
+$conn = new mysqli('db', 'root', 'bismillah123', 'db_paten');
 
 // Membuat tabel admin
 $sql = "CREATE TABLE IF NOT EXISTS admin (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) NOT NULL,
-    password VARCHAR(255) NOT NULL
-)";
+    password VARCHAR(255) NOT NULL)";
 
 if ($conn->query($sql) === TRUE) {
     

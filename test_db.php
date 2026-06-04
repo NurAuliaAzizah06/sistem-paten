@@ -1,7 +1,7 @@
 <?php
 $host = 'db'; // Nama service di docker-compose
 $user = 'root';
-$pass = 'password_paten'; // Sesuai password di docker-compose
+$pass = 'bismillah123'; // Sesuai password di docker-compose
 $db   = 'db_paten';
 
 $conn = new mysqli($host, $user, $pass, $db);
