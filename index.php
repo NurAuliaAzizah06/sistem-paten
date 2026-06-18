@@ -16,21 +16,28 @@ if ($conn->connect_error) {
 
 // Set nilai default awal menjadi 0
 $total_warga = 0;
-$total_berkas = 0;
+$total_lengkap = 0;
+$total_menunggu = 0;
 
 // 2. Ambil Total Warga
-// Jaring Pengaman 2: Pastikan kueri berhasil dieksekusi sebelum mengambil datanya
 $sql_warga = $conn->query("SELECT COUNT(*) as total FROM warga");
 if ($sql_warga) {
     $data_warga = $sql_warga->fetch_assoc();
     $total_warga = $data_warga['total'];
 }
 
-// 3. Ambil Total Berkas Pemberkasan KTP
-$sql_berkas = $conn->query("SELECT COUNT(*) as total FROM pemberkasan_ktp");
-if ($sql_berkas) {
-    $data_berkas = $sql_berkas->fetch_assoc();
-    $total_berkas = $data_berkas['total'];
+// 3. Ambil Total Berkas Lengkap/Selesai (KTP)
+$sql_lengkap = $conn->query("SELECT COUNT(*) as total FROM pemberkasan_ktp WHERE status_berkas LIKE '%Lengkap%'");
+if ($sql_lengkap) {
+    $data_lengkap = $sql_lengkap->fetch_assoc();
+    $total_lengkap = $data_lengkap['total'];
+}
+
+// 4. Ambil Total Berkas Menunggu Verifikasi (KTP)
+$sql_menunggu = $conn->query("SELECT COUNT(*) as total FROM pemberkasan_ktp WHERE status_berkas = 'Menunggu Verifikasi'");
+if ($sql_menunggu) {
+    $data_menunggu = $sql_menunggu->fetch_assoc();
+    $total_menunggu = $data_menunggu['total'];
 }
 ?>
 
@@ -46,7 +53,7 @@ if ($sql_berkas) {
 
     <nav class="navbar navbar-dark bg-dark shadow-sm">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="#">Sistem PATEN Birayang</a>
+            <a class="navbar-brand fw-bold" href="#">SISTEM PATEN BIRAYANG</a>
             <a href="logout.php" class="btn btn-danger btn-sm">Logout</a>
         </div>
     </nav>
@@ -56,7 +63,7 @@ if ($sql_berkas) {
             <div class="col-md-12 mb-4">
                 <div class="card border-0 shadow-sm p-4">
                     <h3 class="mb-1">Halo, <strong><?php echo htmlspecialchars($_SESSION['admin']); ?></strong>! 👋</h3>
-                    <p class="text-muted mb-0">Selamat mengelola data kependudukan hari ini.</p>
+                    <p class="text-muted mb-0">SELAMAT DATANG</p>
                 </div>
             </div>
         </div>
@@ -64,34 +71,43 @@ if ($sql_berkas) {
         <div class="row">
             <div class="col-md-4 mb-4">
                 <div class="d-flex flex-column gap-3 h-100">
-                    <div class="card bg-primary text-white text-center p-4 shadow-sm flex-fill d-flex flex-column justify-content-center">
-                        <h6 class="fw-bold mb-2">TOTAL WARGA TERDAFTAR</h6>
-                        <h1 class="display-4 fw-bold mb-0"><?php echo $total_warga; ?></h1>
+                    <div class="card bg-primary text-white text-center p-3 shadow-sm flex-fill d-flex flex-column justify-content-center">
+                        <h6 class="fw-bold mb-1">TOTAL WARGA TERDAFTAR</h6>
+                        <h1 class="display-5 fw-bold mb-0"><?php echo $total_warga; ?></h1>
                     </div>
                     
-                    <div class="card bg-dark text-white text-center p-4 shadow-sm flex-fill d-flex flex-column justify-content-center">
-                        <h6 class="fw-bold mb-2">TOTAL BERKAS DIPROSES</h6>
-                        <h1 class="display-4 fw-bold mb-0"><?php echo $total_berkas; ?></h1>
+                    <div class="card bg-success text-white text-center p-3 shadow-sm flex-fill d-flex flex-column justify-content-center">
+                        <h6 class="fw-bold mb-1">BERKAS SELESAI (LENGKAP)</h6>
+                        <h1 class="display-5 fw-bold mb-0"><?php echo $total_lengkap; ?></h1>
+                    </div>
+
+                    <div class="card bg-warning text-dark text-center p-3 shadow-sm flex-fill d-flex flex-column justify-content-center">
+                        <h6 class="fw-bold mb-1">MENUNGGU VERIFIKASI</h6>
+                        <h1 class="display-5 fw-bold mb-0"><?php echo $total_menunggu; ?></h1>
                     </div>
                 </div>
             </div>
 
             <div class="col-md-8 mb-4">
                 <div class="card border-0 shadow-sm p-4 h-100">
-                    <h5 class="fw-bold mb-4">Menu Utama</h5>
+                    <h5 class="fw-bold mb-4">Menu Pelayanan</h5>
                     
-                    <div class="d-flex gap-3 flex-wrap align-items-stretch h-100">
-                        <a href="tambah_warga.php" class="btn btn-success btn-lg flex-fill py-4 d-flex flex-column justify-content-center align-items-center">
+                    <div class="d-flex gap-3 flex-wrap align-items-stretch">
+                        <a href="tambah_warga.php" class="btn btn-success btn-lg flex-fill py-4 d-flex flex-column justify-content-center align-items-center" style="min-width: 150px;">
                             <i class="bi bi-person-plus-fill mb-2" style="font-size: 2rem;"></i>
                             Tambah Warga
                         </a>
-                        <a href="lihat_warga.php" class="btn btn-outline-primary btn-lg flex-fill py-4 d-flex flex-column justify-content-center align-items-center">
+                        <a href="lihat_warga.php" class="btn btn-outline-primary btn-lg flex-fill py-4 d-flex flex-column justify-content-center align-items-center" style="min-width: 150px;">
                             <i class="bi bi-people-fill mb-2" style="font-size: 2rem;"></i>
                             Daftar Warga
                         </a>
-                        <a href="pemberkasan.php" class="btn btn-primary btn-lg flex-fill py-4 d-flex flex-column justify-content-center align-items-center">
+                        <a href="pemberkasan.php" class="btn btn-primary btn-lg flex-fill py-4 d-flex flex-column justify-content-center align-items-center" style="min-width: 150px;">
                             <i class="bi bi-file-earmark-text-fill mb-2" style="font-size: 2rem;"></i>
                             Pemberkasan KTP
+                        </a>
+                        <a href="dispensasi_nikah.php" class="btn btn-danger btn-lg flex-fill py-4 d-flex flex-column justify-content-center align-items-center" style="min-width: 150px;">
+                            <i class="bi bi-people-fill mb-2" style="font-size: 2rem;"></i>
+                            Dispensasi Nikah
                         </a>
                     </div>
                 </div>

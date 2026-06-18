@@ -32,6 +32,9 @@ if (isset($_GET['id'])) {
 
 // 4. Fungsi khusus konversi tanggal ke format resmi Bahasa Indonesia
 function tgl_indo($waktu) {
+    if (empty($waktu) || $waktu == '0000-00-00 00:00:00') {
+        return tgl_indo(date('Y-m-d')); // Fallback ke tanggal hari ini jika waktu_verifikasi kosong
+    }
     $bulan = array (
         1 => 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
         'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
@@ -83,11 +86,11 @@ function tgl_indo($waktu) {
 <body onload="window.print();">
 
     <div class="kop-container">
-        <img class="kop-logo" src="Logo_Kecamatan.png" alt="Logo Kab HST">
+        <img class="kop-logo" src="Logo_Kecamatan.png" alt="Logo Kab HST" onerror="this.src='logo.png';">
         <div class="kop-teks">
             <h2>PEMERINTAH KABUPATEN HULU SUNGAI TENGAH</h2>
             <h3>KECAMATAN BIRAYANG</h3>
-            <p>Alamat: Jl. Kesatria Kecamatan Birayang, Kode Pos 71351, Kalimantan Selatan</p>
+            <p>Jl. Kesatria RT. 002 RW.001 Kode Pos 71351</p>
         </div>
     </div>
 
@@ -132,18 +135,22 @@ function tgl_indo($waktu) {
             <tr>
                 <td style="text-align: center;">1</td>
                 <td>Fotokopi / Scan Kartu Keluarga (KK)</td>
-                <td style="text-align: center; font-weight: bold;"><?php echo ($data['file_kk'] == 'Lengkap') ? 'LENGKAP' : 'BELUM LENGKAP'; ?></td>
+                <td style="text-align: center; font-weight: bold; color: <?php echo (!empty($data['file_kk'])) ? 'black' : 'red'; ?>;">
+                    <?php echo (!empty($data['file_kk'])) ? 'LENGKAP' : 'BELUM LENGKAP'; ?>
+                </td>
             </tr>
             <tr>
                 <td style="text-align: center;">2</td>
                 <td>Surat Pengantar dari RT/RW Setempat</td>
-                <td style="text-align: center; font-weight: bold;"><?php echo ($data['file_surat_pengantar'] == 'Lengkap') ? 'LENGKAP' : 'BELUM LENGKAP'; ?></td>
+                <td style="text-align: center; font-weight: bold; color: <?php echo (!empty($data['file_surat_pengantar'])) ? 'black' : 'red'; ?>;">
+                    <?php echo (!empty($data['file_surat_pengantar'])) ? 'LENGKAP' : 'BELUM LENGKAP'; ?>
+                </td>
             </tr>
         </tbody>
     </table>
 
     <div class="status-box">
-        KESIMPULAN STATUS BERKAS SAAT INI: <span style="text-decoration: underline;"><?php echo strtoupper(htmlspecialchars($data['status_berkas'])); ?></span>
+        KESIMPULAN STATUS BERKAS SAAT INI: <span style="text-decoration: underline; font-weight: bold;"><?php echo strtoupper(htmlspecialchars($data['status_berkas'])); ?></span>
     </div>
 
     <div class="ttd-area">

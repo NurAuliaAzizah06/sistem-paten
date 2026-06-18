@@ -1,10 +1,17 @@
 <?php
-// 1. Buka Koneksi Database
+session_start();
+// Proteksi halaman: pastikan hanya admin yang bisa mengeksekusi script ini
+if (!isset($_SESSION['admin'])) {
+    header("Location: login.php");
+    exit();
+}
+
+// 1. Buka Koneksi Database (Menggunakan konfigurasi container Docker-mu)
 $conn = new mysqli('db', 'root', 'bismillah123', 'db_paten');
 
 // Cek koneksi
 if ($conn->connect_error) {
-    die("Koneksi gagal: " . $conn->connect_error);
+    die("Koneksi ke database gagal: " . $conn->connect_error);
 }
 
 // 2. Tangkap data teks dari form tambah_warga.php
@@ -15,7 +22,8 @@ $status_berkas = $conn->real_escape_string($_POST['status_berkas']);
 // 3. Persiapan Folder Upload
 $target_dir = "uploads/";
 if (!is_dir($target_dir)) {
-    mkdir($target_dir, 0755, true); 
+    // Menggunakan permission 0777 agar aman dari isu restriction di lingkungan Docker/Linux local
+    mkdir($target_dir, 0777, true); 
 }
 
 // 4. Proses Eksekusi Upload Surat Pengantar
@@ -34,26 +42,34 @@ if (isset($_FILES['file_kk']) && $_FILES['file_kk']['error'] == 0) {
     move_uploaded_file($_FILES['file_kk']['tmp_name'], $target_dir . $nama_file_kk);
 }
 
-// 6. Masukkan Data ke Database (Dua Tabel Sekaligus)
+// 6. Masukkan Data ke Database (Dua Tabel Sekaligus dengan Validasi Berantai)
 
-// PERBAIKAN: Kolom status_berkas sekarang ikut dimasukkan ke tabel 'warga'
 $sql_warga = "INSERT INTO warga (nik, nama, status_berkas) VALUES ('$nik', '$nama', '$status_berkas') 
               ON DUPLICATE KEY UPDATE nama='$nama', status_berkas='$status_berkas'";
-$conn->query($sql_warga);
 
-// Simpan data file fisik ke tabel 'pemberkasan_ktp'
-$sql_berkas = "INSERT INTO pemberkasan_ktp (nik, status_berkas, file_surat_pengantar, file_kk) 
-               VALUES ('$nik', '$status_berkas', '$nama_file_sp', '$nama_file_kk')
-               ON DUPLICATE KEY UPDATE status_berkas='$status_berkas', file_surat_pengantar='$nama_file_sp', file_kk='$nama_file_kk'";
+// Jalankan query pertama (Tabel Warga)
+if ($conn->query($sql_warga) === TRUE) {
+    
+    // Jika tabel warga sukses, jalankan query kedua (Tabel Pemberkasan KTP)
+    $sql_berkas = "INSERT INTO pemberkasan_ktp (nik, status_berkas, file_surat_pengantar, file_kk) 
+                   VALUES ('$nik', '$status_berkas', '$nama_file_sp', '$nama_file_kk')
+                   ON DUPLICATE KEY UPDATE status_berkas='$status_berkas', file_surat_pengantar='$nama_file_sp', file_kk='$nama_file_kk'";
 
-// 7. Cek apakah berhasil
-if ($conn->query($sql_berkas) === TRUE) {
-    // Kalau sukses, otomatis arahkan kembali ke halaman lihat warga
-    header("Location: lihat_warga.php");
-    exit();
+    if ($conn->query($sql_berkas) === TRUE) {
+        // Jika keduanya sukses, tampilkan alert lalu redirect ke lihat_warga.php
+        echo "<script>
+                alert('Data Warga dan File Berkas Berhasil Disimpan!');
+                window.location.href = 'lihat_warga.php';
+              </script>";
+        exit();
+    } else {
+        // Jika tabel berkas gagal
+        echo "Gagal menyimpan data pada tabel pemberkasan_ktp: " . $conn->error;
+    }
+
 } else {
-    // Kalau gagal, tampilkan pesan errornya
-    echo "Gagal menyimpan data pemberkasan: " . $conn->error;
+    // Jika tabel warga gagal
+    echo "Gagal menyimpan data pada tabel warga: " . $conn->error;
 }
 
 $conn->close();

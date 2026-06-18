@@ -108,23 +108,33 @@ $result = $conn->query($sql);
                                 echo "<td><strong>".htmlspecialchars($row['nik'])."</strong></td>";
                                 echo "<td>".htmlspecialchars($row['nama'])."</td>";
                                 
-                                // Deteksi berkas KK berdasarkan file fisik di database
-                                if (!empty($row['file_kk'])) {
-                                    echo "<td class='text-center'><span class='badge bg-success'><i class='bi bi-file-earmark-check'></i> Tersedia</span></td>";
+                                // Variabel penentu keberadaan berkas fisik
+                                $kk_ada = !empty($row['file_kk']);
+                                $pengantar_ada = !empty($row['file_surat_pengantar']);
+
+                                // 1. Tampilan Kolom Berkas KK
+                                if ($kk_ada) {
+                                    echo "<td class='text-center'><span class='badge bg-success'><i class='bi bi-check-circle-fill me-1'></i> Lengkap</span></td>";
                                 } else {
-                                    echo "<td class='text-center'><span class='badge bg-danger'>Kosong</span></td>";
+                                    echo "<td class='text-center'><span class='badge bg-danger'><i class='bi bi-x-circle-fill me-1'></i> Belum Lengkap</span></td>";
                                 }
                                 
-                                // Deteksi berkas Surat Pengantar berdasarkan file fisik di database
-                                if (!empty($row['file_surat_pengantar'])) {
-                                    echo "<td class='text-center'><span class='badge bg-success'><i class='bi bi-file-earmark-check'></i> Tersedia</span></td>";
+                                // 2. Tampilan Kolom Berkas Pengantar
+                                if ($pengantar_ada) {
+                                    echo "<td class='text-center'><span class='badge bg-success'><i class='bi bi-check-circle-fill me-1'></i> Lengkap</span></td>";
                                 } else {
-                                    echo "<td class='text-center'><span class='badge bg-danger'>Kosong</span></td>";
+                                    echo "<td class='text-center'><span class='badge bg-danger'><i class='bi bi-x-circle-fill me-1'></i> Belum Lengkap</span></td>";
                                 }
                                 
-                                $status_class = 'bg-warning text-dark';
-                                if ($row['status_berkas'] == 'Lengkap (Sesuai Syarat)') $status_class = 'bg-success';
-                                if ($row['status_berkas'] == 'Belum Lengkap') $status_class = 'bg-danger';
+                                // 3. Logika Fleksibel untuk Status Kelayakan (Kuning jika hanya salah satu yang lengkap)
+                                if (($kk_ada && !$pengantar_ada) || (!$kk_ada && $pengantar_ada)) {
+                                    $status_class = 'bg-warning text-dark';
+                                } else {
+                                    // Jika dua-duanya ada atau dua-duanya kosong, ikuti nilai aslinya
+                                    $status_class = 'bg-warning text-dark';
+                                    if ($row['status_berkas'] == 'Lengkap (Sesuai Syarat)') $status_class = 'bg-success';
+                                    if ($row['status_berkas'] == 'Belum Lengkap') $status_class = 'bg-danger';
+                                }
                                 
                                 echo "<td class='text-center'><span class='badge $status_class' style='font-size: 13px;'>".htmlspecialchars($row['status_berkas'])."</span></td>";
                                 
