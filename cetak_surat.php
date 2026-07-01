@@ -6,13 +6,8 @@ if (!isset($_SESSION['admin'])) {
     exit();
 }
 
-// 2. Koneksi ke Database db_paten
-$conn = new mysqli('db', 'root', 'bismillah123', 'db_paten');
-
-// Cek jika koneksi gagal
-if ($conn->connect_error) {
-    die("Koneksi gagal: " . $conn->connect_error);
-}
+// 2. Koneksi ke Database
+require_once 'koneksi.php';
 
 // PERUBAHAN UTAMA: Menggunakan LEFT JOIN untuk menarik data status_berkas dari tabel pemberkasan_ktp
 $sql = "SELECT w.*, p.status_berkas 

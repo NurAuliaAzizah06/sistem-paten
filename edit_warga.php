@@ -4,12 +4,8 @@ if (!isset($_SESSION['admin'])) {
     header("Location: login.php");
     exit();
 }
-?>
-<?php
-$conn = new mysqli('db', 'root', 'bismillah123', 'db_paten');
-if ($conn->connect_error) { 
-    die("Koneksi gagal: " . $conn->connect_error); 
-}
+
+require_once 'koneksi.php';
 
 // Perubahan sudah sangat bagus: Menggunakan NIK sebagai acuan URL
 if (isset($_GET['nik'])) {

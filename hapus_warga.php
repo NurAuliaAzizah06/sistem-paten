@@ -6,11 +6,7 @@ if (!isset($_SESSION['admin'])) {
 }
 
 // 1. Koneksi Database
-$conn = new mysqli('db', 'root', 'bismillah123', 'db_paten');
-
-if ($conn->connect_error) {
-    die("Koneksi database gagal: " . $conn->connect_error);
-}
+require_once 'koneksi.php';
 
 // 2. Ambil parameter NIK dari URL
 if (isset($_GET['nik'])) {

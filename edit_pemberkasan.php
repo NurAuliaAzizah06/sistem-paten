@@ -6,11 +6,8 @@ if (!isset($_SESSION['admin'])) {
     exit();
 }
 
-// 2. Koneksi database Docker kamu
-$conn = new mysqli('db', 'root', 'bismillah123', 'db_paten');
-if ($conn->connect_error) { 
-    die("Koneksi gagal: " . $conn->connect_error); 
-}
+// 2. Koneksi database
+require_once 'koneksi.php';
 
 // 3. Ambil data lama yang mau diedit berdasarkan ID di URL
 if (isset($_GET['id'])) {

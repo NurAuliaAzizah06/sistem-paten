@@ -1,12 +1,13 @@
 services:
   web:
-    build: .  # Ini akan menjalankan perintah di Dockerfile tadi
+    build: .
     ports:
       - "8080:80"
     volumes:
       - .:/var/www/html
     environment:
       - TZ=Asia/Makassar
+      - APP_ENV=docker
     depends_on:
       - db
 
@@ -15,10 +16,12 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: bismillah123
       MYSQL_DATABASE: db_paten
-       TZ=Asia/Makassar
+      TZ: Asia/Makassar
     ports:
       - "3306:3306"
-  
+    volumes:
+      - db_data:/var/lib/mysql
+
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:latest
     container_name: paten_phpmyadmin
@@ -29,4 +32,7 @@ services:
     ports:
       - "8081:80"
     depends_on:
-      - db 
+      - db
+
+volumes:
+  db_data:

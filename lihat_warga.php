@@ -5,6 +5,7 @@ if (!isset($_SESSION['admin'])) {
     header("Location: login.php");
     exit();
 }
+require_once 'koneksi.php';
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -62,13 +63,6 @@ if (!isset($_SESSION['admin'])) {
                         </thead>
                         <tbody>
     <?php
-    $conn = new mysqli('db', 'root', 'bismillah123', 'db_paten');
-    
-    // Cek koneksi agar aman
-    if ($conn->connect_error) {
-        die("Koneksi gagal: " . $conn->connect_error);
-    }
-    
     // LOGIKA PENCARIAN 
     if (isset($_GET['cari']) && trim($_GET['cari']) != '') {
         $cari_teks = "%" . trim($_GET['cari']) . "%";

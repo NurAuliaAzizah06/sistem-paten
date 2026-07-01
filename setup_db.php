@@ -1,9 +1,5 @@
 <?php
-$conn = new mysqli('db', 'root', 'bismillah123', 'db_paten');
-
-if ($conn->connect_error) {
-    die("Koneksi gagal: " . $conn->connect_error);
-}
+require_once 'koneksi.php';
 
 // Perintah untuk membuat tabel warga yang sinkron
 $sql = "CREATE TABLE IF NOT EXISTS warga (
