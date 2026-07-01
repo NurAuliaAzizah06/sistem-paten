@@ -7,6 +7,10 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
+# apt-get upgrade bisa mengaktifkan beberapa MPM sekaligus - nonaktifkan yang konflik
+RUN a2dismod mpm_event mpm_worker 2>/dev/null || true && \
+    a2enmod mpm_prefork
+
 RUN docker-php-ext-install mysqli pdo pdo_mysql
 
 # Menyalin kode sumber aplikasi ke dalam folder web server
