@@ -1,18 +1,14 @@
 # Menggunakan base image PHP 8.2 dengan Apache
 FROM php:8.2-apache
 
-# Security patching
+# Security patching + fix MPM conflict dalam satu layer
+# apt-get upgrade bisa mengaktifkan mpm_event/mpm_worker yang konflik dengan mod_php
 RUN apt-get update && \
     apt-get upgrade -y && \
     apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
-# apt-get upgrade mengaktifkan mpm_event/mpm_worker yang konflik dengan mod_php
-# Hapus symlink-nya langsung, pastikan hanya mpm_prefork yang aktif
-RUN rm -f /etc/apache2/mods-enabled/mpm_event.conf \
-          /etc/apache2/mods-enabled/mpm_event.load \
-          /etc/apache2/mods-enabled/mpm_worker.conf \
-          /etc/apache2/mods-enabled/mpm_worker.load && \
+    rm -rf /var/lib/apt/lists/* && \
+    find /etc/apache2/mods-enabled/ -name "mpm_event*" -delete && \
+    find /etc/apache2/mods-enabled/ -name "mpm_worker*" -delete && \
     ln -sf /etc/apache2/mods-available/mpm_prefork.conf /etc/apache2/mods-enabled/mpm_prefork.conf && \
     ln -sf /etc/apache2/mods-available/mpm_prefork.load /etc/apache2/mods-enabled/mpm_prefork.load
 
