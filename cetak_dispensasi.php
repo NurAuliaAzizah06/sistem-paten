@@ -5,10 +5,7 @@ if (!isset($_SESSION['admin'])) {
     exit();
 }
 
-$conn = new mysqli('db', 'root', 'bismillah123', 'db_paten');
-if ($conn->connect_error) {
-    die("Koneksi database gagal: " . $conn->connect_error);
-}
+require_once 'koneksi.php';
 
 if (!isset($_GET['id']) || empty($_GET['id'])) {
     die("<div style='text-align:center; margin-top:50px;'><h3>❌ Error: ID Pengajuan tidak ditemukan!</h3><a href='dispensasi_nikah.php'>Kembali</a></div>");

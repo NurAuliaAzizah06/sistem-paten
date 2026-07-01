@@ -5,8 +5,7 @@ if (!isset($_SESSION['admin'])) {
     exit();
 }
 
-$conn = new mysqli('db', 'root', 'bismillah123', 'db_paten');
-if ($conn->connect_error) die("Koneksi gagal: " . $conn->connect_error);
+require_once 'koneksi.php';
 
 // Tangkap ID yang mau diedit
 if (!isset($_GET['id'])) {

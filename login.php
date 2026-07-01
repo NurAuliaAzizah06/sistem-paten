@@ -1,6 +1,6 @@
 <?php
 session_start();
-$conn = new mysqli('db', 'root', 'bismillah123', 'db_paten');
+require_once 'koneksi.php';
 
 if (isset($_POST['login'])) {
     $username = $_POST['username'];

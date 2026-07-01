@@ -7,12 +7,7 @@ if (!isset($_SESSION['admin'])) {
 }
 
 // 1. Koneksi Database
-$conn = new mysqli('db', 'root', 'bismillah123', 'db_paten');
-
-// Jaring Pengaman 1: Cek apakah koneksi database berhasil
-if ($conn->connect_error) {
-    die("Koneksi gagal: " . $conn->connect_error);
-}
+require_once 'koneksi.php';
 
 // Set nilai default awal menjadi 0
 $total_warga = 0;

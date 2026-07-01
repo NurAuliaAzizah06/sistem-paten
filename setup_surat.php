@@ -1,11 +1,6 @@
 <?php
 // Koneksi ke database
-$conn = new mysqli('db', 'root', 'bismillah123', 'db_paten');
-
-// Cek Koneksi
-if ($conn->connect_error) {
-    die("Koneksi gagal: " . $conn->connect_error);
-}
+require_once 'koneksi.php';
 
 // Perintah untuk membuat tabel surat
 $sql = "CREATE TABLE IF NOT EXISTS surat (

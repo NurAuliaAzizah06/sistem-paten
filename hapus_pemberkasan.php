@@ -6,11 +6,8 @@ if (!isset($_SESSION['admin'])) {
     exit();
 }
 
-// 2. Koneksi database Docker
-$conn = new mysqli('db', 'root', 'bismillah123', 'db_paten');
-if ($conn->connect_error) { 
-    die("Koneksi gagal: " . $conn->connect_error); 
-}
+// 2. Koneksi database
+require_once 'koneksi.php';
 
 // 3. Ambil ID dari URL tombol hapus
 if (isset($_GET['id'])) {

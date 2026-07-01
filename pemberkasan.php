@@ -6,11 +6,8 @@ if (!isset($_SESSION['admin'])) {
     exit();
 }
 
-// 2. Koneksi ke database Docker
-$conn = new mysqli('db', 'root', 'bismillah123', 'db_paten');
-if ($conn->connect_error) { 
-    die("Koneksi database gagal: " . $conn->connect_error); 
-}
+// 2. Koneksi ke database
+require_once 'koneksi.php';
 
 // Menangani pencarian jika admin mengetik nama/NIK di kolom cari
 $search = "";

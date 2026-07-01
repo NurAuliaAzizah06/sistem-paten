@@ -1,3 +1,4 @@
+<?php require_once 'koneksi.php'; ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -27,9 +28,8 @@
             </thead>
             <tbody>
                 <?php
-                $conn = new mysqli('db', 'root', 'bismillah123', 'db_paten');
                 $no = 1;
-                $query = "SELECT * FROM warga ORDER BY tgl_input DESC";
+                $query = "SELECT * FROM warga ORDER BY waktu_input DESC";
                 $result = $conn->query($query);
                 while($row = $result->fetch_assoc()):
                 ?>
@@ -37,7 +37,7 @@
                     <td><?php echo $no++; ?></td>
                     <td><?php echo $row['nik']; ?></td>
                     <td><?php echo $row['nama']; ?></td>
-                    <td><?php echo $row['tgl_input']; ?></td>
+                    <td><?php echo $row['waktu_input']; ?></td>
                 </tr>
                 <?php endwhile; ?>
             </tbody>

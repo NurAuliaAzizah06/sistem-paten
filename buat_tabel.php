@@ -1,21 +1,18 @@
 <?php
-// 1. Koneksi ke Database db_paten kamu
-$conn = new mysqli('db', 'root', 'bismillah123', 'db_paten');
+// 1. Koneksi ke Database
+require_once 'koneksi.php';
 
-// Cek koneksi
-if ($conn->connect_error) {
-    die("<h3 style='color:red;'>Koneksi ke database gagal: " . $conn->connect_error . "</h3>");
-}
-
-// Langkah A: Buat tabel baru dengan tipe data NIK VARCHAR yang fleksibel tanpa kekakuan constraint
 $sql_tabel_baru = "CREATE TABLE IF NOT EXISTS pemberkasan_ktp (
-    id_pemberkasan INT AUTO_INCREMENT PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     nik VARCHAR(50) NOT NULL,
     syarat_kk ENUM('Lengkap', 'Belum Lengkap') DEFAULT 'Belum Lengkap',
     syarat_akta ENUM('Lengkap', 'Belum Lengkap') DEFAULT 'Belum Lengkap',
     syarat_surat_pengantar ENUM('Lengkap', 'Belum Lengkap') DEFAULT 'Belum Lengkap',
+    file_kk VARCHAR(255) DEFAULT '',
+    file_surat_pengantar VARCHAR(255) DEFAULT '',
     status_berkas ENUM('Belum Lengkap', 'Menunggu Verifikasi', 'Lengkap (Sesuai Syarat)') DEFAULT 'Belum Lengkap',
-    tgl_pemberkasan TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    waktu_verifikasi TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (nik) REFERENCES warga(nik) ON DELETE CASCADE ON UPDATE CASCADE
 )";
 
 // 2. Eksekusi pembuatan tabel baru

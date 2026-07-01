@@ -1,5 +1,5 @@
 <?php
-$conn = new mysqli('db', 'root', 'bismillah123', 'db_paten');
+require_once 'koneksi.php';
 
 // Membuat tabel admin
 $sql = "CREATE TABLE IF NOT EXISTS admin (

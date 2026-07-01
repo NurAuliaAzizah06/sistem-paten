@@ -6,13 +6,8 @@ if (!isset($_SESSION['admin'])) {
     exit();
 }
 
-// 1. Buka Koneksi Database (Menggunakan konfigurasi container Docker-mu)
-$conn = new mysqli('db', 'root', 'bismillah123', 'db_paten');
-
-// Cek koneksi
-if ($conn->connect_error) {
-    die("Koneksi ke database gagal: " . $conn->connect_error);
-}
+// 1. Buka Koneksi Database
+require_once 'koneksi.php';
 
 // 2. Tangkap data teks dari form tambah_warga.php
 $nik = $conn->real_escape_string($_POST['nik']);

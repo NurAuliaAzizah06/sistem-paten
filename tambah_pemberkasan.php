@@ -6,11 +6,8 @@ if (!isset($_SESSION['admin'])) {
     exit();
 }
 
-// 2. Koneksi database Docker
-$conn = new mysqli('db', 'root', 'bismillah123', 'db_paten');
-if ($conn->connect_error) { 
-    die("Koneksi gagal: " . $conn->connect_error); 
-}
+// 2. Koneksi database
+require_once 'koneksi.php';
 
 // Ambil data warga dari tabel warga untuk dimasukkan ke pilihan dropdown (Select Option)
 $warga_query = $conn->query("SELECT nik, nama FROM warga ORDER BY nama ASC");
