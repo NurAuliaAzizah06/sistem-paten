@@ -1,0 +1,11 @@
+.git
+.github
+docker-compose.yml
+uploads/
+test_db.php
+setup_db.php
+setup_admin.php
+setup_surat.php
+setup_semua.php
+buat_tabel.php
+update_db.php

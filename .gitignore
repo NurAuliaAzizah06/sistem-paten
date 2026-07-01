@@ -1,0 +1,6 @@
+# File upload warga - jangan pernah di-commit ke GitHub
+uploads/
+
+# File environment / konfigurasi lokal
+.env
+.env.local
