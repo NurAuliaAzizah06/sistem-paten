@@ -7,9 +7,14 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# apt-get upgrade bisa mengaktifkan beberapa MPM sekaligus - nonaktifkan yang konflik
-RUN a2dismod mpm_event mpm_worker 2>/dev/null || true && \
-    a2enmod mpm_prefork
+# apt-get upgrade mengaktifkan mpm_event/mpm_worker yang konflik dengan mod_php
+# Hapus symlink-nya langsung, pastikan hanya mpm_prefork yang aktif
+RUN rm -f /etc/apache2/mods-enabled/mpm_event.conf \
+          /etc/apache2/mods-enabled/mpm_event.load \
+          /etc/apache2/mods-enabled/mpm_worker.conf \
+          /etc/apache2/mods-enabled/mpm_worker.load && \
+    ln -sf /etc/apache2/mods-available/mpm_prefork.conf /etc/apache2/mods-enabled/mpm_prefork.conf && \
+    ln -sf /etc/apache2/mods-available/mpm_prefork.load /etc/apache2/mods-enabled/mpm_prefork.load
 
 RUN docker-php-ext-install mysqli pdo pdo_mysql
 
